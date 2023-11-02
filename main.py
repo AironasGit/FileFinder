@@ -3,21 +3,29 @@ import os
 def search_files(root_directory, file_types, file_name_contains):
     if not os.path.exists(root_directory):
         raise Exception(f"Not a valid root directory: {root_directory}")
-    if len(file_types) < 1:
-        raise Exception(f"No file types are specified")
     traversed_directories = []
     found_files = []
     total_size = 0
-    for (root,dirs,files) in os.walk(root_directory): 
-        for file in files:
-            traversed_directories.append(root)
-            for file_type in file_types:
-                if file.split('.')[-1] == file_type:
-                    for substring in file_name_contains:
-                        if substring in file:
-                            found_files.append((f"{root}/{file}").replace('\\', '/'))
-                            total_size += os.path.getsize((f"{root}/{file}").replace('\\', '/'))
-                            break
+    
+    if len(file_types) < 1:
+        for (root,dirs,files) in os.walk(root_directory): 
+            for file in files:
+                traversed_directories.append(root)
+                found_file = f"{root}/{file}".replace('\\', '/')
+                found_files.append(found_file)
+                total_size += os.path.getsize(found_file)
+    else:
+        for (root,dirs,files) in os.walk(root_directory): 
+            for file in files:
+                traversed_directories.append(root)
+                for file_type in file_types:
+                    if file.split('.')[-1] == file_type:
+                        for substring in file_name_contains:
+                            if substring in file:
+                                found_file = f"{root}/{file}".replace('\\', '/')
+                                found_files.append(found_file)
+                                total_size += os.path.getsize(found_file)
+                                break
 
     traversed_directories = sorted(set(traversed_directories)) # Removing duplicates
     return traversed_directories, found_files, total_size
